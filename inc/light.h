@@ -10,8 +10,8 @@ public:
 	Light();
 	Light(Vect, Color);
 
-	virtual Vect getPosition(){ return position; }
-	Color color(){ return color; }
+	Vect getPosition(){ return position; }
+	Color getColor(){ return color; }
 private:
 	Vect position;
 	Color color;

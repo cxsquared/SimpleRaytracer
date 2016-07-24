@@ -15,6 +15,7 @@ public:
 	void setRed(double);
 	void setGreen(double);
 	void setBlue(double);
+	void setSpecial(double);
 private:
 	double red, green, blue, special;
 };

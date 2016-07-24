@@ -14,6 +14,7 @@
 #include "ray.h"
 #include "camera.h"
 #include "color.h"
+#include "light.h"
 
 using namespace std;
 
@@ -55,6 +56,14 @@ int main(int argc, char *argv[])
 	Vect camdown = camright.crossProduct(camdir);
 
 	Camera scene_cam (campos, camdir, camright, camdown);
+
+	Color white_light (1, 1, 1, 0);
+	Color pretty_green (0.5, 1.0, 0.5, 0.3);
+	Color grey (0.5, 0.5, 0.5, 0);
+	Color black (0, 0, 0, 0);
+
+	Vect light_position(-7, 10, 0);
+	Light scene_light(light_position, white_light);
 
 	for (int x = 0; x < width; ++x)
 	{
