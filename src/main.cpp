@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
 	RGBType *pixels = new RGBType[numPixels];
 
-	Camera cam();
+	Camera cam;
 
 	Vect X(1,0,0);
 	Vect Y(0,1,0);
