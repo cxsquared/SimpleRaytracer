@@ -9,7 +9,7 @@ public:
 	Ray();
 	Ray(Vect, Vect);
 
-	Vect getOrign(){ return origin; }
+	Vect getOrigin(){ return origin; }
 	Vect getDirection(){ return direction; }
 private:
 	Vect origin, direction;

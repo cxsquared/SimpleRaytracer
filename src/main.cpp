@@ -15,6 +15,8 @@
 #include "camera.h"
 #include "color.h"
 #include "light.h"
+#include "sphere.h"
+#include "plane.h"
 
 using namespace std;
 
@@ -61,9 +63,13 @@ int main(int argc, char *argv[])
 	Color pretty_green (0.5, 1.0, 0.5, 0.3);
 	Color grey (0.5, 0.5, 0.5, 0);
 	Color black (0, 0, 0, 0);
+	Color maroon(0.75, 0.25, 0.25, 0);
 
 	Vect light_position(-7, 10, 0);
 	Light scene_light(light_position, white_light);
+
+	Sphere scene_sphere(Vect(0,0,0), 1, pretty_green);
+	Plane scene_plane(Y, -1, maroon);
 
 	for (int x = 0; x < width; ++x)
 	{
