@@ -6,7 +6,7 @@ INC = -I ./inc
 FILES = main.cpp vect.cpp ray.cpp camera.cpp color.cpp light.cpp
 SOURCES = $(FILES:%.cpp=$(SRC_PATH)/%.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
-EXECUTABLE = raytracer
+EXECUTABLE = ./bin/raytracer
 
 all: $(SOURCES) $(EXECUTABLE)
     

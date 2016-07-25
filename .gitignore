@@ -84,3 +84,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+#output files
+*.bmp
+bin/

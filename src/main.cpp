@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
 void savebmp(const char *filename, int w, int h, int dpi, RGBType *data)
 {
 	FILE *f;
-	unsigned char bmpHeaderSize = 14;
-	unsigned char bmpInfoSize = 40;
+	const unsigned char bmpHeaderSize = 14;
+	const unsigned char bmpInfoSize = 40;
 	int numPixels = w * h;
 	int size = 4 * numPixels;
 	int filesize = bmpHeaderSize + bmpInfoSize + size;
