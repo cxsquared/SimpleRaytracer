@@ -26,7 +26,7 @@ double Plane::findIntersection(Ray ray)
 		return -1;
 	}
 
-	double b = normal.dotProduct(ray.getOrigin().add(normal.multiply(distance).negative()));
+	double b = normal.dotProduct(ray.getOrigin() - (normal * distance));
 
 	return -1*b/a;
 }

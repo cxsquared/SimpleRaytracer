@@ -14,6 +14,7 @@ public:
 
 	double getRadius(){ return radius; }
 	double findIntersection(Ray ray);
+	Vect getNormalAt(Vect point);
 private:
 	double radius;
 };

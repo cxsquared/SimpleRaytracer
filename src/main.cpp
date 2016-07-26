@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <float.h>
 
 #include "vect.h"
 #include "ray.h"
@@ -28,6 +29,7 @@ struct RGBType
 };
 
 void savebmp(const char *filename, int w, int h, int dpi, RGBType *data);
+int winningObjectIndex(vector<double>);
 
 int currentPixel;
 
@@ -38,6 +40,7 @@ int main(int argc, char *argv[])
 	int dpi = 72;
 	int width = 640;
 	int height = 480;
+	double aspectratio = (double)width/(double)height;
 
 	int numPixels = width*height;
 
@@ -49,9 +52,9 @@ int main(int argc, char *argv[])
 	Vect Y(0,1,0);
 	Vect Z(0,0,1);
 
-	Vect campos(0, 1.5, -10);
+	Vect campos(0, 1, -4);
 	Vect look_at (0, 0, 0);
-	Vect diff_btw  = campos.subtract(look_at);
+	Vect diff_btw  = campos - look_at;
 
 	Vect camdir = diff_btw.negative().normalize();
 	Vect camright = Y.crossProduct(camdir).normalize();
@@ -71,24 +74,59 @@ int main(int argc, char *argv[])
 	Sphere scene_sphere(Vect(0,0,0), 1, pretty_green);
 	Plane scene_plane(Y, -1, maroon);
 
+	vector<SceneObject*> objects;
+	objects.push_back(dynamic_cast<SceneObject*>(&scene_sphere));
+	objects.push_back(dynamic_cast<SceneObject*>(&scene_plane));
+
+	double xamnt, yamnt;
+
 	for (int x = 0; x < width; ++x)
 	{
 		for (int y = 0; y < height; ++y)
 		{
 			currentPixel = y*width+x;
 
-			if (x > width/4 && x < width*.75 && y > height/4 && y < height*.75)
+			// start with no anti-aliasing
+			if(width > height)
 			{
-				pixels[currentPixel].r = .5;
-				pixels[currentPixel].g = .75;
-				pixels[currentPixel].b = .1;
-			} else
+				xamnt = ((x+0.5) / width) * aspectratio - (((width-height)/(double)height)/2);
+				yamnt = ((height - y) + 0.5) / height; 
+			}
+			else if(height > width)
 			{
+				xamnt = (x + 0.5) / width;
+				yamnt = (((height - y) + 0.5) / height)/aspectratio - (((height-width)/(double)width)/2);
+			}
+			else
+			{
+				xamnt = (x + 0.5) / width;
+				yamnt = ((height - y) + 0.5)/height;
+			}
+
+			Vect camRayOrigin = scene_cam.getCameraPosition();
+			Vect camRayDir = (camdir + (camright * (xamnt - 0.5)) + (camdown * (yamnt - 0.5))).normalize();
+
+			Ray camRay (camRayOrigin, camRayDir);
+
+			vector<double> intersections;
+
+			for(int index = 0; index < objects.size(); ++index)
+			{
+				double intersect = objects.at(index)->findIntersection(camRay);
+				intersections.push_back(intersect);
+			}
+
+			int indexWinningObject = winningObjectIndex(intersections);
+
+			if (indexWinningObject >= 0) {
+				pixels[currentPixel].r = objects.at(indexWinningObject)->color.getRed();
+				pixels[currentPixel].g = objects.at(indexWinningObject)->color.getGreen();;
+				pixels[currentPixel].b = objects.at(indexWinningObject)->color.getBlue();;
+			} else {
 				pixels[currentPixel].r = 0;
 				pixels[currentPixel].g = 0;
 				pixels[currentPixel].b = 0;
 			}
-
 		}
 	}
 
@@ -163,4 +201,37 @@ void savebmp(const char *filename, int w, int h, int dpi, RGBType *data)
 	}
 
 	fclose(f);
+}
+
+int winningObjectIndex(vector<double> objectIntersections)
+{
+	int returnIndex = -1;
+
+	if(objectIntersections.size() == 0)
+	{
+		return -1;
+	}
+	else if (objectIntersections.size() == 1 && objectIntersections.at(0) > 0)
+	{
+		return 0;
+	}
+	else
+	{
+		double min = DBL_MAX;
+		for(int i = 0; i < objectIntersections.size(); ++i)
+		{
+			if (objectIntersections.at(i) > 0 && objectIntersections.at(i) < min)
+			{
+				min = objectIntersections.at(i);
+				returnIndex = i;
+			}
+		}
+
+		if (returnIndex >= 0)
+		{
+			return returnIndex;
+		}
+	}
+
+	return -1; // Couldn't find an intersection
 }
