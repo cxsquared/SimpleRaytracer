@@ -7,15 +7,28 @@ public:
 	Color();
 	Color(double, double, double, double);
 
-	double getRed(){ return red; }
-	double getGreen(){ return green; }
-	double getBlue(){ return blue; }
-	double getSpecial(){ return special; }
+	double getRed() const { return red; }
+	double getGreen() const { return green; }
+	double getBlue() const { return blue; }
+	double getSpecial() const { return special; }
 
 	void setRed(double);
 	void setGreen(double);
 	void setBlue(double);
 	void setSpecial(double);
+
+	double brightness();
+
+	Color& operator+=(const Color& rhs);
+	const Color operator+(const Color& rhs) const;
+	Color& operator-=(const Color& rhs);
+	const Color operator-(const Color& rhs) const;
+	Color& operator*=(const double& rhs);
+	const Color operator*(const double& rhs) const;
+	Color& operator*=(const Color& rhs);
+	const Color operator*(const Color& rhs) const;
+
+	Color& average(const Color& color);
 private:
 	double red, green, blue, special;
 };

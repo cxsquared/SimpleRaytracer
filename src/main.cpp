@@ -30,6 +30,7 @@ struct RGBType
 
 void savebmp(const char *filename, int w, int h, int dpi, RGBType *data);
 int winningObjectIndex(vector<double>);
+Color getColorAt(const Vect, const Vect, vector<SceneObject*>, int, double, double, vector<Light*>);
 
 int currentPixel;
 
@@ -41,6 +42,8 @@ int main(int argc, char *argv[])
 	int width = 640;
 	int height = 480;
 	double aspectratio = (double)width/(double)height;
+	double ambientlight = 0.2;
+	double accuracy = 0.000001;
 
 	int numPixels = width*height;
 
@@ -68,8 +71,11 @@ int main(int argc, char *argv[])
 	Color black (0, 0, 0, 0);
 	Color maroon(0.75, 0.25, 0.25, 0);
 
+	vector<Light*> lights;
+
 	Vect light_position(-7, 10, 0);
 	Light scene_light(light_position, white_light);
+	lights.push_back(dynamic_cast<Light*>(&scene_light));
 
 	Sphere scene_sphere(Vect(0,0,0), 1, pretty_green);
 	Plane scene_plane(Y, -1, maroon);
@@ -119,10 +125,21 @@ int main(int argc, char *argv[])
 			int indexWinningObject = winningObjectIndex(intersections);
 
 			if (indexWinningObject >= 0) {
-				pixels[currentPixel].r = objects.at(indexWinningObject)->color.getRed();
-				pixels[currentPixel].g = objects.at(indexWinningObject)->color.getGreen();;
-				pixels[currentPixel].b = objects.at(indexWinningObject)->color.getBlue();;
-			} else {
+				double intersectDist = intersections.at(indexWinningObject);
+				if(intersectDist > accuracy)
+				{
+					Vect interectPoint = camRayOrigin + (camRayDir * intersectDist);
+					Vect intersectionDir = camRayDir;
+
+					Color intersectColor = getColorAt(interectPoint, intersectionDir, objects, indexWinningObject, accuracy, ambientlight, lights);
+
+					pixels[currentPixel].r = intersectColor.getRed();
+					pixels[currentPixel].g = intersectColor.getGreen();
+					pixels[currentPixel].b = intersectColor.getBlue();
+				}
+			} 
+			else 
+			{
 				pixels[currentPixel].r = 0;
 				pixels[currentPixel].g = 0;
 				pixels[currentPixel].b = 0;
@@ -234,4 +251,9 @@ int winningObjectIndex(vector<double> objectIntersections)
 	}
 
 	return -1; // Couldn't find an intersection
+}
+
+Color getColorAt(const Vect point, const Vect dir, vector<SceneObject*> objs, int objIndex, double acc, double amb, vector<Light*> lightSources)
+{
+	return Color();
 }
