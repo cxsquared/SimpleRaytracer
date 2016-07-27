@@ -1,20 +1,17 @@
-#ifndef _LIGHT_H
-#define _LIGHT_H
+#ifndef _LIGH_SOURCE_H
+#define _LIGH_SOURCE_H
 
 #include "Vect.h"
 #include "Color.h"
 
-class Light
+class LightSource
 {
 public:
-	Light();
-	Light(Vect, Color);
 
 	Vect getPosition(){ return position; }
 	Color getColor(){ return color; }
-private:
+protected:
 	Vect position;
 	Color color;
 };
-
 #endif

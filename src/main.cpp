@@ -15,9 +15,10 @@
 #include "ray.h"
 #include "camera.h"
 #include "color.h"
-#include "light.h"
+#include "lightSource.h"
 #include "sphere.h"
 #include "plane.h"
+#include "pointLight.h"
 
 using namespace std;
 
@@ -30,7 +31,7 @@ struct RGBType
 
 void savebmp(const char *filename, int w, int h, int dpi, RGBType *data);
 int winningObjectIndex(vector<double>);
-Color getColorAt(const Vect, const Vect, vector<SceneObject*>, int, double, double, vector<Light*>);
+Color getColorAt(const Vect, const Vect, vector<SceneObject*>, int, double, double, vector<LightSource*>);
 
 int currentPixel;
 
@@ -71,11 +72,11 @@ int main(int argc, char *argv[])
 	Color black (0, 0, 0, 0);
 	Color maroon(0.75, 0.25, 0.25, 0);
 
-	vector<Light*> lights;
+	vector<LightSource*> lights;
 
 	Vect light_position(-7, 10, 0);
-	Light scene_light(light_position, white_light);
-	lights.push_back(dynamic_cast<Light*>(&scene_light));
+	PointLight scene_light(light_position, white_light);
+	lights.push_back(dynamic_cast<LightSource*>(&scene_light));
 
 	Sphere scene_sphere(Vect(0,0,0), 1, pretty_green);
 	Plane scene_plane(Y, -1, maroon);
@@ -253,7 +254,65 @@ int winningObjectIndex(vector<double> objectIntersections)
 	return -1; // Couldn't find an intersection
 }
 
-Color getColorAt(const Vect point, const Vect dir, vector<SceneObject*> objs, int objIndex, double acc, double amb, vector<Light*> lightSources)
+Color getColorAt(const Vect point, const Vect dir, vector<SceneObject*> objs, int objIndex, double acc, double amb, vector<LightSource*> lightSources)
 {
-	return Color();
+	Color finalColor = Color(0,0,0,0);
+	Color objColor = objs.at(objIndex)->color;
+	Vect objNorm = objs.at(objIndex)->getNormalAt(point);
+
+	for(int lightIndex = 0; lightIndex < lightSources.size(); ++lightIndex)
+	{
+		Vect lightDir = (lightSources.at(lightIndex)->getPosition() - point).normalize();
+
+		float cosineAngle = objNorm.dotProduct(lightDir);
+
+		if(cosineAngle > 0)
+		{
+			// test for shadows
+			bool shadowed = false;
+
+			float distanceToLight = (lightSources.at(lightIndex)->getPosition() - point).magnitude();
+
+			Ray shadowRay(point, lightDir);
+
+			vector<double> shadowIntersections;
+
+			finalColor = objColor * amb;
+
+			for(int testObjIndex = 0; testObjIndex < objs.size() && !shadowed; ++testObjIndex)
+			{
+				shadowIntersections.push_back(objs.at(testObjIndex)->findIntersection(shadowRay));
+			}
+
+			for(int intersectIndex = 0; intersectIndex < shadowIntersections.size(); ++intersectIndex)
+			{
+				double shadowIntersect = shadowIntersections.at(intersectIndex);
+				if(shadowIntersect > acc && shadowIntersect <= distanceToLight)
+				{
+					shadowed = true;
+					break;
+				}
+			}
+
+			if (!shadowed)
+			{
+				finalColor += objColor * lightSources.at(lightIndex)->getColor() * cosineAngle;
+			
+				if (objColor.getSpecial() > 0 && objColor.getSpecial() <= 1)
+				{
+					double dot1 = objNorm.dotProduct(dir.negative());
+					Vect reflectionDir = (((objNorm * dot1) + dir) * 2 - dir).normalize();
+
+					double specular = reflectionDir.dotProduct(lightDir);
+					if (specular > 0)
+					{
+						specular = pow(specular, 10);
+						finalColor += lightSources.at(lightIndex)->getColor() * (specular * objColor.getSpecial());	
+					}
+				}
+			}
+		}
+	}
+
+	return finalColor;
 }

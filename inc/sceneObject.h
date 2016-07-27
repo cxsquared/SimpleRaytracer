@@ -11,6 +11,8 @@ public:
 	Color color;
 
 	virtual double findIntersection(Ray ray) = 0;
+	virtual Vect getNormalAt(Vect point) = 0;
+
 	Vect getPosition(){ return position; }
 protected:
 	Vect position;

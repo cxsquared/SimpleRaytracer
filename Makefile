@@ -1,9 +1,9 @@
 CC = g++
-CFLAGS = -c -Wall
+CFLAGS = -c -g -Wall
 LDFLAGS =
 SRC_PATH = ./src
 INC = -I ./inc
-FILES = main.cpp vect.cpp ray.cpp camera.cpp color.cpp light.cpp sphere.cpp plane.cpp
+FILES = main.cpp vect.cpp ray.cpp camera.cpp color.cpp pointLight.cpp sphere.cpp plane.cpp
 SOURCES = $(FILES:%.cpp=$(SRC_PATH)/%.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 EXECUTABLE = ./bin/raytracer
